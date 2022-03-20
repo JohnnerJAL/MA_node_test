@@ -1,15 +1,16 @@
 const PostalCode = require('./model');
 
-async function saveCoordinates(...coordinates) {
+async function saveCoordinates(externalData, ...coordinates) {
     try {
         const newPostalCode = await new PostalCode({
             location: {
                 coordinates,
             },
+            postalCode: externalData,
             date: new Date(),
         });
     
-        newPostalCode.save();
+        await newPostalCode.save();
     
         return newPostalCode;
     } catch (error) {

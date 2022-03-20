@@ -1,7 +1,10 @@
 const fs = require('fs');
 const readline = require('readline');
+const axios = require('axios');
 
 const store = require('./store');
+
+const API_URI_POSCODES = 'https://api.postcodes.io/postcodes';
 
 async function saveCoordinates(path) {
     return new Promise((resolve, reject) => {
@@ -9,6 +12,7 @@ async function saveCoordinates(path) {
             reject('There\'s no right file to process');
         }
 
+        const coordinatesToSearch = [];
         const coordinates = [];
 
         const rl = readline.createInterface({
@@ -17,18 +21,26 @@ async function saveCoordinates(path) {
         });
 
         rl.on('line', async (line) => {
-            const [latitude, longitude] = line.split(',');
-
-            if (latitude && longitude &&
-                typeof latitude === 'string' &&
-                typeof longitude === 'string') {
-                const data = await store.saveCoordinates(Number(longitude), Number(latitude));
-                coordinates.push(data);
-            }
+            coordinatesToSearch.push(line.split(','));
         });
 
-        rl.on('close', () => {
-            // console.log(coordinates);
+        console.log(coordinates)
+        rl.on('close', async () => {
+            for (let i = 0, j = coordinatesToSearch.length; i < j; i++) {
+                const [latitude, longitude] = coordinatesToSearch[i];
+                
+                if (latitude && longitude &&
+                    typeof latitude === 'string' &&
+                    typeof longitude === 'string') {
+                        
+                        console.log(latitude, longitude)
+                        
+                    const { data: externalData } = await axios.get(`${API_URI_POSCODES}?lon=${longitude}&lat=${latitude}`);
+                    const data = await store.saveCoordinates(externalData.result, Number(longitude), Number(latitude));
+                    coordinates.push(data);
+                }
+            }
+
             resolve(coordinates);
         });
     })

@@ -8,7 +8,7 @@ const PostalCode = new mongoose.Schema({
         },
         coordinates: [Number], // Longitude, latitude
     },
-    postalCode: String,
+    postalCode: Array,
     date: Date,
 });
 
