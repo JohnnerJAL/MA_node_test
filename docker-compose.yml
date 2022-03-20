@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  web:
+    container_name: ma_api_test
+    restart: always
+    build: .
+    ports:
+      - "3000:4000"
+    links:
+      - mongodb
+    volumes:
+      - .:/usr/src/app
+  mongodb:
+    container_name: ma_database_test
+    image: mongo
+    ports:
+      - "27017:27017"
+    logging:
+      driver: none
